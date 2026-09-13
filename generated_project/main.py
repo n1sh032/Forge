@@ -1,1 +1,6 @@
-print("Hello from FORGE")
+def main() -> None:
+    print("Hello from FORGE")
+
+
+if __name__ == "__main__":
+    main()
