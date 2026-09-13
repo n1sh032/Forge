@@ -39,6 +39,12 @@ Return ONLY valid JSON in this format:
 
 Do not write any code.
 Keep the plan practical and simple.
+
+This is a small student portfolio project.
+Only include features that are necessary for the user's task.
+Do not add enterprise features, telemetry, CI/CD, cross-platform
+support, complex configuration systems, or other features unless
+the user specifically asks for them.
 """
 
         result = self.provider.generate(prompt)
