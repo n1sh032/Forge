@@ -38,6 +38,8 @@ Rules:
 - Include basic error handling where needed.
 - Return the complete contents of every file.
 - Do not use markdown code blocks.
+- The generated project must have main.py at the project root.
+- Do not place the generated main.py inside src/.
 """
 
         result = self.provider.generate(prompt)

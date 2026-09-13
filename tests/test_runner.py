@@ -1,14 +1,48 @@
-from pathlib import Path
-
-from src.tools.test_runner import run_tests
+import subprocess
 
 
-project_dir = Path("generated_project")
+def run_tests(project_dir, tests):
+    results = []
 
-result = run_tests(project_dir)
+    for test in tests:
+        try:
+            result = subprocess.run(
+                ["python", "main.py"],
+                cwd=project_dir,
+                input=test["input"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
 
-print("\n--- TEST RESULT ---")
-print("Success:", result["success"])
-print("Output:", result["output"])
-print("Error:", result["error"])
-print("Return code:", result["return_code"])
+            output = result.stdout.strip()
+            expected = test["expected_output"].strip()
+
+            success = (
+                result.returncode == 0
+                and output == expected
+            )
+
+            results.append({
+                "success": success,
+                "input": test["input"],
+                "expected_output": expected,
+                "output": output,
+                "error": result.stderr,
+                "return_code": result.returncode
+            })
+
+        except subprocess.TimeoutExpired:
+            results.append({
+                "success": False,
+                "input": test["input"],
+                "expected_output": test["expected_output"],
+                "output": "",
+                "error": "Program timed out after 10 seconds.",
+                "return_code": -1
+            })
+
+    return {
+        "success": all(test["success"] for test in results),
+        "tests": results
+    }

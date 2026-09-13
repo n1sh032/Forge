@@ -32,19 +32,26 @@ Return ONLY valid JSON in this format:
         "step 2"
     ],
     "tests": [
-        "test 1",
-        "test 2"
+        {{
+            "input": "input to give the program",
+            "expected_output": "expected output"
+        }}
     ]
 }}
 
-Do not write any code.
-Keep the plan practical and simple.
+Rules:
+
+- Only include requirements directly implied by the user's task.
+- Do not invent unnecessary features.
+- Do not invent arbitrary output formatting.
+- Tests must verify the user's actual requirements.
+- If the program requires user input, provide realistic test input.
+- If the program does not require input, use an empty input string.
+- Keep tests simple and deterministic.
+- Do not write any code.
 
 This is a small student portfolio project.
-Only include features that are necessary for the user's task.
-Do not add enterprise features, telemetry, CI/CD, cross-platform
-support, complex configuration systems, or other features unless
-the user specifically asks for them.
+Prefer simple Python solutions that a student can understand.
 """
 
         result = self.provider.generate(prompt)

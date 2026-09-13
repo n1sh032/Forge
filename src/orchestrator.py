@@ -128,7 +128,10 @@ class Orchestrator:
         while True:
             print("\n--- TESTING ---")
 
-            test_result = run_tests(project_dir)
+            test_result = run_tests(
+                project_dir,
+                plan["tests"]
+            )
 
             if test_result["success"]:
                 print("\nFORGE SUCCESS")
@@ -136,7 +139,12 @@ class Orchestrator:
                 return
 
             print("\nTEST FAILED")
-            print(test_result["error"])
+
+            for test in test_result["tests"]:
+                if not test["success"]:
+                    print("Expected:", test["expected_output"])
+                    print("Got:", test["output"])
+                    print("Error:", test["error"])
 
             if repair_attempts >= MAX_REPAIR_ATTEMPTS:
                 print("\nMaximum repair attempts reached.")
