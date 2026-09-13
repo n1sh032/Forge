@@ -1,3 +1,5 @@
+import json
+
 from src.providers.openai import OpenAIProvider
 
 
@@ -7,10 +9,9 @@ class Planner:
 
     def make_plan(self, task, context=""):
         prompt = f"""
-You are the planning agent for a project called FORGE.
+You are the planning agent for FORGE.
 
-Your job is to take a software task and turn it into a simple
-plan that another AI agent can use to build the software.
+Turn the user's software task into a simple implementation plan.
 
 Task:
 {task}
@@ -18,28 +19,33 @@ Task:
 Extra context:
 {context}
 
-Give the answer in this format:
+Return ONLY valid JSON in this format:
 
-GOAL:
-Explain what the program should do.
+{{
+    "goal": "what the software should do",
+    "requirements": [
+        "requirement 1",
+        "requirement 2"
+    ],
+    "steps": [
+        "step 1",
+        "step 2"
+    ],
+    "tests": [
+        "test 1",
+        "test 2"
+    ]
+}}
 
-REQUIREMENTS:
-- requirement 1
-- requirement 2
-- requirement 3
-
-STEPS:
-1. step 1
-2. step 2
-3. step 3
-
-TESTS:
-- test 1
-- test 2
-
-Keep the plan practical and don't write the actual code.
+Do not write any code.
+Keep the plan practical and simple.
 """
 
         result = self.provider.generate(prompt)
 
-        return result
+        try:
+            plan = json.loads(result)
+            return plan
+        except json.JSONDecodeError:
+            print("The planner returned invalid JSON.")
+            return None

@@ -6,9 +6,14 @@ provider = OpenAIProvider()
 
 planner = Planner(provider)
 
-plan = planner.create_plan(
-    task="Build a Python program that automatically organizes files in my Downloads folder.",
-    context="The program should eventually support machine-learning based classification."
+plan = planner.make_plan(
+    "Build a Python program that automatically organizes files in my Downloads folder.",
+    "The program should eventually support machine learning."
 )
 
-print(plan)
+print("\nGOAL:")
+print(plan["goal"])
+
+print("\nSTEPS:")
+for step in plan["steps"]:
+    print("-", step)
