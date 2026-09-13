@@ -5,6 +5,7 @@ from src.agents.builder import Builder
 from src.agents.repair import Repair
 from src.tools.file_writer import write_files
 from src.tools.test_runner import run_tests
+from src.agents.critic import Critic
 
 
 MAX_AGENT_CALLS = 5
@@ -15,7 +16,9 @@ class Orchestrator:
     def __init__(self, provider):
         self.planner = Planner(provider)
         self.builder = Builder(provider)
+        self.critic = Critic(provider)
         self.repair = Repair(provider)
+        
 
     def run(self, task):
         agent_calls = 0
@@ -46,6 +49,32 @@ class Orchestrator:
         if not result:
             print("Building failed.")
             return
+
+        print("\n--- CRITIC REVIEW ---")
+
+        if agent_calls >= MAX_AGENT_CALLS:
+            print("Maximum agent calls reached.")
+            return
+
+        critique = self.critic.review(
+            task,
+            plan,
+            result["files"]
+        )
+
+        agent_calls += 1
+
+        if not critique:
+            print("Critic failed.")
+            return
+
+        print("Approved:", critique["approved"])
+
+        if critique["issues"]:
+            print("Issues:")
+
+            for issue in critique["issues"]:
+                print("-", issue)
 
         project_dir = Path("generated_project")
 
@@ -105,4 +134,3 @@ class Orchestrator:
             )
 
         print(f"Agent calls: {agent_calls}/{MAX_AGENT_CALLS}")
-        
