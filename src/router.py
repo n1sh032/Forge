@@ -71,6 +71,9 @@ class Router:
         elif agent == "repair":
             score += profile["coding"] * 2
 
+        else:
+            raise ValueError(f"Unknown agent: {agent}")
+
         if complexity == "simple":
             score += profile["simple"]
 
@@ -82,19 +85,45 @@ class Router:
 
         return score
 
-    def select_provider(self, agent, task):
+    def route(self, agent, task):
+        complexity = self.classify_task(task)
+
         best_provider = None
+        best_provider_name = None
         best_score = -1
 
+        scores = {}
+
         for provider_name, provider in self.providers.items():
+
+            if provider_name not in self.provider_profiles:
+                continue
+
             score = self.score_provider(
                 provider_name,
                 agent,
                 task
             )
 
+            scores[provider_name] = score
+
             if score > best_score:
                 best_score = score
                 best_provider = provider
+                best_provider_name = provider_name
 
-        return best_provider
+        if best_provider is None:
+            raise ValueError("No valid providers available")
+
+        return {
+            "provider": best_provider,
+            "provider_name": best_provider_name,
+            "score": best_score,
+            "complexity": complexity,
+            "scores": scores
+        }
+
+    def select_provider(self, agent, task):
+        decision = self.route(agent, task)
+
+        return decision["provider"]

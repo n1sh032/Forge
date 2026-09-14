@@ -26,14 +26,18 @@ class Orchestrator:
             print("Maximum agent calls reached.")
             return
 
-        planner_provider = self.router.select_provider(
+        planner_route = self.router.route(
             "planner",
             task
         )
 
+        planner_provider = planner_route["provider"]
+
         print(
-            "Planner model:",
-            planner_provider.model
+            "Planner:",
+            planner_route["provider_name"],
+            "| score:",
+            planner_route["score"]
         )
 
         planner = Planner(planner_provider)
@@ -51,19 +55,27 @@ class Orchestrator:
             print("Maximum agent calls reached.")
             return
 
-        builder_provider = self.router.select_provider(
+        builder_route = self.router.route(
             "builder",
             task
         )
 
+        builder_provider = builder_route["provider"]
+
         print(
-            "Builder model:",
-            builder_provider.model
+            "Builder:",
+            builder_route["provider_name"],
+            "| score:",
+            builder_route["score"]
         )
 
         builder = Builder(builder_provider)
 
-        result = builder.build(task, plan)
+        result = builder.build(
+            task,
+            plan
+        )
+
         agent_calls += 1
 
         if not result:
@@ -77,14 +89,18 @@ class Orchestrator:
                 print("Maximum agent calls reached.")
                 return
 
-            critic_provider = self.router.select_provider(
+            critic_route = self.router.route(
                 "critic",
                 task
             )
 
+            critic_provider = critic_route["provider"]
+
             print(
-                "Critic model:",
-                critic_provider.model
+                "Critic:",
+                critic_route["provider_name"],
+                "| score:",
+                critic_route["score"]
             )
 
             critic = Critic(critic_provider)
@@ -101,7 +117,10 @@ class Orchestrator:
                 print("Critic failed.")
                 return
 
-            print("Approved:", critique["approved"])
+            print(
+                "Approved:",
+                critique["approved"]
+            )
 
             if critique["issues"]:
                 print("Issues:")
@@ -124,14 +143,18 @@ class Orchestrator:
 
             print("\n--- REPAIRING CRITIC ISSUES ---")
 
-            repair_provider = self.router.select_provider(
+            repair_route = self.router.route(
                 "repair",
                 task
             )
 
+            repair_provider = repair_route["provider"]
+
             print(
-                "Repair model:",
-                repair_provider.model
+                "Repair:",
+                repair_route["provider_name"],
+                "| score:",
+                repair_route["score"]
             )
 
             repair = Repair(repair_provider)
@@ -181,9 +204,20 @@ class Orchestrator:
 
             for test in test_result["tests"]:
                 if not test["success"]:
-                    print("Expected:", test["expected_output"])
-                    print("Got:", test["output"])
-                    print("Error:", test["error"])
+                    print(
+                        "Expected:",
+                        test["expected_output"]
+                    )
+
+                    print(
+                        "Got:",
+                        test["output"]
+                    )
+
+                    print(
+                        "Error:",
+                        test["error"]
+                    )
 
             if repair_attempts >= MAX_REPAIR_ATTEMPTS:
                 print("\nMaximum repair attempts reached.")
@@ -197,14 +231,18 @@ class Orchestrator:
 
             print("\n--- REPAIRING TEST FAILURE ---")
 
-            repair_provider = self.router.select_provider(
+            repair_route = self.router.route(
                 "repair",
                 task
             )
 
+            repair_provider = repair_route["provider"]
+
             print(
-                "Repair model:",
-                repair_provider.model
+                "Repair:",
+                repair_route["provider_name"],
+                "| score:",
+                repair_route["score"]
             )
 
             repair = Repair(repair_provider)
