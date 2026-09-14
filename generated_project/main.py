@@ -1,34 +1,17 @@
-def _parse_number(s: str) -> float:
-    s = s.strip()
-    try:
-        return float(s)
-    except ValueError:
-        # Basic handling for comma as decimal separator (e.g., "2,5")
-        if s.count(',') == 1 and '.' not in s:
-            try:
-                return float(s.replace(',', '.'))
-            except ValueError:
-                pass
-        raise
+def read_int(prompt: str) -> int:
+    while True:
+        try:
+            return int(input(prompt))
+        except Exception:
+            # If invalid input is entered, ask again without extra messages
+            continue
 
 
-def main() -> None:
-    try:
-        first = input()
-        second = input()
-    except EOFError:
-        # Not enough input provided; exit quietly
-        return
-
-    try:
-        a = _parse_number(first)
-        b = _parse_number(second)
-    except ValueError:
-        # Invalid input; exit quietly without extra text
-        return
-
+def main():
+    a = read_int('Enter first number: ')
+    b = read_int('Enter second number: ')
     print(a + b)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
