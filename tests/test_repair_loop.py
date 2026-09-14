@@ -42,24 +42,11 @@ if not critique["approved"]:
 
     print("\n--- REPAIRING ---")
 
-    test_result = {
-        "success": False,
-        "tests": [
-            {
-                "success": False,
-                "input": "",
-                "expected_output": "Hello from FORGE",
-                "output": "Hello",
-                "error": "",
-                "return_code": 0
-            }
-        ]
-    }
-
     repaired = repair.repair(
         task,
         files,
-        test_result
+        critic_feedback=critique,
+        test_result=None
     )
 
     print("\n--- REPAIRED CODE ---")
