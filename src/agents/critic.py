@@ -1,7 +1,5 @@
 import json
 
-from src.providers.openai import OpenAIProvider
-
 
 class Critic:
     def __init__(self, provider):

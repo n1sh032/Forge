@@ -1,7 +1,5 @@
 import json
 
-from src.providers.openai import OpenAIProvider
-
 
 class Builder:
     def __init__(self, provider):
