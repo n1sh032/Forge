@@ -8,7 +8,7 @@ from src.tools.file_writer import write_files
 from src.tools.test_runner import run_tests
 
 
-MAX_AGENT_CALLS = 5
+MAX_AGENT_CALLS = 10
 MAX_REPAIR_ATTEMPTS = 2
 
 
@@ -91,17 +91,11 @@ class Orchestrator:
 
             print("\n--- REPAIRING CRITIC ISSUES ---")
 
-            repair_result = {
-                "success": False,
-                "output": "",
-                "error": "\n".join(critique["issues"]),
-                "return_code": 1
-            }
-
             repaired = self.repair.repair(
                 task,
                 result["files"],
-                repair_result
+                critic_feedback=critique,
+                test_result=None
             )
 
             agent_calls += 1
@@ -156,12 +150,13 @@ class Orchestrator:
                 print("FORGE stopped.")
                 return
 
-            print("\n--- REPAIRING ---")
+            print("\n--- REPAIRING TEST FAILURE ---")
 
             repaired = self.repair.repair(
                 task,
                 result["files"],
-                test_result
+                critic_feedback=None,
+                test_result=test_result
             )
 
             agent_calls += 1
