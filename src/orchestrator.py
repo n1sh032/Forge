@@ -6,7 +6,6 @@ from src.agents.critic import Critic
 from src.agents.repair import Repair
 from src.tools.file_writer import write_files
 from src.tools.test_runner import run_tests
-from src.router import Router
 
 
 MAX_AGENT_CALLS = 10
@@ -16,22 +15,6 @@ MAX_REPAIR_ATTEMPTS = 2
 class Orchestrator:
     def __init__(self, router):
         self.router = router
-
-        self.planner = Planner(
-            router.get_provider("planner")
-        )
-
-        self.builder = Builder(
-            router.get_provider("builder")
-        )
-
-        self.critic = Critic(
-            router.get_provider("critic")
-        )
-
-        self.repair = Repair(
-            router.get_provider("repair")
-        )
 
     def run(self, task):
         agent_calls = 0
@@ -43,7 +26,19 @@ class Orchestrator:
             print("Maximum agent calls reached.")
             return
 
-        plan = self.planner.make_plan(task)
+        planner_provider = self.router.select_provider(
+            "planner",
+            task
+        )
+
+        print(
+            "Planner model:",
+            planner_provider.model
+        )
+
+        planner = Planner(planner_provider)
+
+        plan = planner.make_plan(task)
         agent_calls += 1
 
         if not plan:
@@ -56,7 +51,19 @@ class Orchestrator:
             print("Maximum agent calls reached.")
             return
 
-        result = self.builder.build(task, plan)
+        builder_provider = self.router.select_provider(
+            "builder",
+            task
+        )
+
+        print(
+            "Builder model:",
+            builder_provider.model
+        )
+
+        builder = Builder(builder_provider)
+
+        result = builder.build(task, plan)
         agent_calls += 1
 
         if not result:
@@ -70,7 +77,19 @@ class Orchestrator:
                 print("Maximum agent calls reached.")
                 return
 
-            critique = self.critic.review(
+            critic_provider = self.router.select_provider(
+                "critic",
+                task
+            )
+
+            print(
+                "Critic model:",
+                critic_provider.model
+            )
+
+            critic = Critic(critic_provider)
+
+            critique = critic.review(
                 task,
                 plan,
                 result["files"]
@@ -105,7 +124,19 @@ class Orchestrator:
 
             print("\n--- REPAIRING CRITIC ISSUES ---")
 
-            repaired = self.repair.repair(
+            repair_provider = self.router.select_provider(
+                "repair",
+                task
+            )
+
+            print(
+                "Repair model:",
+                repair_provider.model
+            )
+
+            repair = Repair(repair_provider)
+
+            repaired = repair.repair(
                 task,
                 result["files"],
                 critic_feedback=critique,
@@ -166,7 +197,19 @@ class Orchestrator:
 
             print("\n--- REPAIRING TEST FAILURE ---")
 
-            repaired = self.repair.repair(
+            repair_provider = self.router.select_provider(
+                "repair",
+                task
+            )
+
+            print(
+                "Repair model:",
+                repair_provider.model
+            )
+
+            repair = Repair(repair_provider)
+
+            repaired = repair.repair(
                 task,
                 result["files"],
                 critic_feedback=None,

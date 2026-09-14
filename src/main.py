@@ -2,8 +2,6 @@ from src.providers.openai import OpenAIProvider
 from src.providers.gemini import GeminiProvider
 from src.orchestrator import Orchestrator
 from src.router import Router
-from src.providers.gemini import GeminiProvider
-
 
 
 def main():
@@ -20,16 +18,12 @@ def main():
 
     print("\nStarting FORGE...")
 
-    planner_provider = OpenAIProvider()
-    builder_provider = GeminiProvider()
-    critic_provider = OpenAIProvider()
-    repair_provider = GeminiProvider()
+    openai_provider = OpenAIProvider()
+    gemini_provider = GeminiProvider()
 
     router = Router({
-        "planner": planner_provider,
-        "builder": builder_provider,
-        "critic": critic_provider,
-        "repair": repair_provider
+        "openai": openai_provider,
+        "gemini": gemini_provider
     })
 
     forge = Orchestrator(router)

@@ -2,32 +2,99 @@ class Router:
     def __init__(self, providers):
         self.providers = providers
 
-    def get_provider(self, agent):
+        self.provider_profiles = {
+            "openai": {
+                "reasoning": 10,
+                "coding": 9,
+                "speed": 7,
+                "simple": 7
+            },
+            "gemini": {
+                "reasoning": 8,
+                "coding": 10,
+                "speed": 9,
+                "simple": 9
+            }
+        }
+
+    def classify_task(self, task):
+        task = task.lower()
+
+        complex_words = [
+            "authentication",
+            "database",
+            "api",
+            "machine learning",
+            "neural network",
+            "multi-agent",
+            "distributed",
+            "concurrent",
+            "deployment"
+        ]
+
+        medium_words = [
+            "file",
+            "csv",
+            "json",
+            "web scraper",
+            "calculator",
+            "cli",
+            "automation"
+        ]
+
+        for word in complex_words:
+            if word in task:
+                return "complex"
+
+        for word in medium_words:
+            if word in task:
+                return "medium"
+
+        return "simple"
+
+    def score_provider(self, provider_name, agent, task):
+        profile = self.provider_profiles[provider_name]
+
+        complexity = self.classify_task(task)
+
+        score = 0
+
         if agent == "planner":
-            return self.providers["planner"]
+            score += profile["reasoning"] * 2
 
-        if agent == "builder":
-            return self.providers["builder"]
+        elif agent == "builder":
+            score += profile["coding"] * 2
 
-        if agent == "critic":
-            return self.providers["critic"]
+        elif agent == "critic":
+            score += profile["reasoning"] * 2
 
-        if agent == "repair":
-            return self.providers["repair"]
+        elif agent == "repair":
+            score += profile["coding"] * 2
 
-        raise ValueError(f"Unknown agent: {agent}")
+        if complexity == "simple":
+            score += profile["simple"]
+
+        elif complexity == "medium":
+            score += profile["coding"]
+
+        elif complexity == "complex":
+            score += profile["reasoning"]
+
+        return score
 
     def select_provider(self, agent, task):
-        if agent == "planner":
-            return self.providers["planner"]
+        best_provider = None
+        best_score = -1
 
-        if agent == "critic":
-            return self.providers["critic"]
+        for provider_name, provider in self.providers.items():
+            score = self.score_provider(
+                provider_name,
+                agent,
+                task
+            )
 
-        if agent == "builder":
-            return self.providers["builder"]
+            if score > best_score:
+                best_score = score
+                best_provider = provider
 
-        if agent == "repair":
-            return self.providers["repair"]
-
-        raise ValueError(f"Unknown agent: {agent}")
+        return best_provider
