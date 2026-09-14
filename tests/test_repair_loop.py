@@ -1,36 +1,60 @@
-from pathlib import Path
-
 from src.providers.openai import OpenAIProvider
+from src.agents.critic import Critic
 from src.agents.repair import Repair
-from src.tools.file_writer import write_files
-from src.tools.test_runner import run_tests
 
 
 provider = OpenAIProvider()
+
+critic = Critic(provider)
 repair = Repair(provider)
 
-project_dir = Path("repair_test_project")
 
 task = "Create a Python program that prints exactly: Hello from FORGE"
+
+plan = {
+    "goal": "Create a simple Python greeting program.",
+    "requirements": [
+        "Print exactly Hello from FORGE"
+    ]
+}
 
 files = [
     {
         "path": "main.py",
-        "content": 'print("Hello from FORGE"'
+        "content": 'print("Hello")'
     }
 ]
 
-write_files(files, project_dir)
 
-print("\n--- FIRST TEST ---")
+print("\n--- FIRST CRITIC REVIEW ---")
 
-test_result = run_tests(project_dir)
+critique = critic.review(
+    task,
+    plan,
+    files
+)
 
-print("Success:", test_result["success"])
-print("Error:", test_result["error"])
+print("Approved:", critique["approved"])
+print("Issues:", critique["issues"])
 
-if not test_result["success"]:
+
+if not critique["approved"]:
+
     print("\n--- REPAIRING ---")
+
+    test_result = {
+        "success": False,
+        "tests": [
+            {
+                "success": False,
+                "input": "",
+                "expected_output": "Hello from FORGE",
+                "output": "Hello",
+                "error": "",
+                "return_code": 0
+            }
+        ]
+    }
 
     repaired = repair.repair(
         task,
@@ -38,16 +62,16 @@ if not test_result["success"]:
         test_result
     )
 
-    if repaired:
-        write_files(
-            repaired["files"],
-            project_dir
-        )
+    print("\n--- REPAIRED CODE ---")
+    print(repaired)
 
-        print("\n--- SECOND TEST ---")
+    print("\n--- SECOND CRITIC REVIEW ---")
 
-        test_result = run_tests(project_dir)
+    second_critique = critic.review(
+        task,
+        plan,
+        repaired["files"]
+    )
 
-        print("Success:", test_result["success"])
-        print("Output:", test_result["output"])
-        print("Error:", test_result["error"])
+    print("Approved:", second_critique["approved"])
+    print("Issues:", second_critique["issues"])

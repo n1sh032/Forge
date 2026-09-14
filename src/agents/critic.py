@@ -23,31 +23,43 @@ BUILDER FILES:
 {json.dumps(files, indent=2)}
 
 Check whether the implementation:
+- satisfies the user's actual requirements
 - follows the plan
-- satisfies the requirements
-- avoids unnecessary features
-- contains obvious problems
+- has obvious bugs
+- has unnecessary features or complexity
+- has error handling that could cause problems
 
 Return ONLY valid JSON:
 
 {{
     "approved": true,
-    "issues": [
-        "issue 1",
-        "issue 2"
-    ]
+    "issues": []
 }}
 
-If there are no important issues, return an empty issues list.
+IMPORTANT:
+- Set approved to false if there is any important issue.
+- Set approved to true ONLY when there are no important issues.
+- If approved is false, include every important issue in the issues list.
+- Do not reject code for harmless style preferences.
+- Do not invent requirements that the user did not ask for.
+- Do not rewrite the code.
 
-Do not rewrite the code.
-Keep the review practical and concise.
+This is a small student portfolio project.
+Prefer simple Python solutions that a student can understand.
 """
 
         result = self.provider.generate(prompt)
 
         try:
-            return json.loads(result)
-        except json.JSONDecodeError:
+            critique = json.loads(result)
+
+            if critique["issues"]:
+                critique["approved"] = False
+            else:
+                critique["approved"] = True
+
+            return critique
+
+        except (json.JSONDecodeError, KeyError, TypeError):
             print("The critic returned invalid JSON.")
             return None

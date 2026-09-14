@@ -10,8 +10,7 @@ task = "Create a Python program that prints exactly: Hello from FORGE"
 plan = {
     "goal": "Create a simple Python greeting program.",
     "requirements": [
-        "Print exactly Hello from FORGE",
-        "Use Python"
+        "Print exactly Hello from FORGE"
     ]
 }
 
